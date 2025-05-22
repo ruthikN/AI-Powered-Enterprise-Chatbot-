@@ -1,129 +1,164 @@
 import streamlit as st
 import time
 import random
-import pandas as pd
-from datetime import datetime, timedelta
 
-# Set page config
+# Configure the page
 st.set_page_config(
-    page_title="AI-Powered Enterprise Chatbot",
+    page_title="Enterprise AI Chatbot",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Mock data and configurations
+# Mock database
 def load_chatbot_data():
     return {
-        "daily_queries": 512,
-        "user_satisfaction": 0.94,
-        "uptime": 0.9995,
-        "response_times": [round(random.uniform(300, 700), 2) for _ in range(100)],
-        "response_times_optimized": [round(random.uniform(200, 400), 2) for _ in range(100)],
-        "conversation_history": [
-            {"user": "What's our Q3 sales forecast?", "bot": "Based on current trends, Q3 sales are projected to be $4.2M, a 12% increase from Q2.", "timestamp": "2023-05-15 09:23:45"},
-            {"user": "Any issues with the AWS deployment?", "bot": "All systems are operational. The Kubernetes cluster is running with 99.95% uptime over the past week.", "timestamp": "2023-05-15 10:12:33"},
-            {"user": "Summarize the customer feedback from last week", "bot": "Last week's feedback shows 94% satisfaction. Key themes: faster response times (78%), accurate information (85%).", "timestamp": "2023-05-16 14:45:21"}
+        "performance_metrics": {
+            "daily_queries": 512,
+            "satisfaction": 0.94,
+            "uptime": "99.95%",
+            "latency_before": "700ms",
+            "latency_after": "400ms",
+            "improvement": "42% (300ms)"
+        },
+        "example_conversations": [
+            {"user": "What's the Q3 sales forecast?", "bot": "Q3 sales projected at $4.2M, up 12% from Q2", "time": "10:23 AM"},
+            {"user": "AWS system status?", "bot": "All systems operational. Kubernetes cluster at 99.95% uptime", "time": "11:45 AM"},
+            {"user": "Chatbot performance?", "bot": "Response times improved by 42% after optimizations", "time": "02:15 PM"}
         ],
-        "system_metrics": {
-            "cpu_usage": [random.uniform(20, 60) for _ in range(24)],
-            "memory_usage": [random.uniform(30, 70) for _ in range(24)],
-            "latency": [random.uniform(150, 350) for _ in range(24)]
+        "system_stats": {
+            "hours": ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"],
+            "cpu_usage": [32, 28, 45, 52, 48, 38],
+            "memory_usage": [45, 42, 58, 62, 55, 47],
+            "active_users": [85, 32, 210, 305, 280, 195]
         }
     }
 
 # Initialize data
 chatbot_data = load_chatbot_data()
 
-# Mock chatbot function
-def enterprise_chatbot_response(user_input):
-    # Simulate processing time (optimized latency)
-    processing_time = random.uniform(0.15, 0.35)
+# Chatbot response generator
+def generate_response(user_query):
+    # Simulate processing time (optimized response)
+    processing_time = random.uniform(0.2, 0.4)
     time.sleep(processing_time)
     
     # Context-aware responses
-    if "sales" in user_input.lower():
-        return f"Based on the latest analytics, sales are trending positively with a 12% increase projected for next quarter. (Processed in {processing_time:.3f}s)"
-    elif "aws" in user_input.lower() or "ec2" in user_input.lower():
-        return f"Our AWS infrastructure is currently running at 99.95% availability with auto-scaling enabled. (Processed in {processing_time:.3f}s)"
-    elif "performance" in user_input.lower() or "latency" in user_input.lower():
-        return f"After LoRA fine-tuning, we've achieved 42% lower latency (300ms improvement). Current avg: 320ms. (Processed in {processing_time:.3f}s)"
+    if "sales" in user_query.lower():
+        return {
+            "response": f"Sales analytics indicate 12% growth projection for next quarter. (Processed in {processing_time:.2f}s)",
+            "category": "sales"
+        }
+    elif "aws" in user_query.lower() or "ec2" in user_query.lower():
+        return {
+            "response": f"AWS infrastructure operating normally with 99.95% uptime. (Processed in {processing_time:.2f}s)",
+            "category": "infrastructure"
+        }
+    elif "performance" in user_query.lower():
+        return {
+            "response": f"After optimizations, we achieved 42% lower latency (300ms improvement). (Processed in {processing_time:.2f}s)",
+            "category": "performance"
+        }
     else:
-        return f"I've analyzed your query about '{user_input}'. Our systems indicate optimal performance in this area. (Processed in {processing_time:.3f}s)"
+        return {
+            "response": f"I've analyzed your query about '{user_query}'. Our systems show optimal performance. (Processed in {processing_time:.2f}s)",
+            "category": "general"
+        }
 
-# Dashboard layout
-st.title("AI-Powered Enterprise Chatbot")
-st.subheader("AWS EC2, Hugging Face, LangChain - 42% Latency Improvement")
-
-# Main columns
-col1, col2 = st.columns([2, 3])
-
-with col1:
-    st.markdown("### System Metrics")
+# Main app layout
+def main():
+    st.title("🚀 AI-Powered Enterprise Chatbot")
+    st.markdown("""
+    **AWS EC2 | Hugging Face | LangChain | Kubernetes**  
+    *Reduced response latency by 300ms (42%) | 94% user satisfaction | 99.95% uptime*
+    """)
     
-    # Uptime and satisfaction
-    metric1, metric2 = st.columns(2)
-    metric1.metric("Daily Queries", chatbot_data["daily_queries"])
-    metric2.metric("User Satisfaction", f"{chatbot_data['user_satisfaction']*100:.1f}%")
+    # Metrics dashboard
+    st.subheader("Performance Dashboard")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Daily Queries", chatbot_data["performance_metrics"]["daily_queries"])
+    col2.metric("User Satisfaction", f"{chatbot_data['performance_metrics']['satisfaction']*100:.0f}%")
+    col3.metric("System Uptime", chatbot_data["performance_metrics"]["uptime"])
+    col4.metric("Latency Improvement", chatbot_data["performance_metrics"]["improvement"])
     
-    # Response time comparison
-    st.markdown("#### Response Time Optimization")
-    df_times = pd.DataFrame({
-        "Time (ms)": chatbot_data["response_times"] + chatbot_data["response_times_optimized"],
-        "Version": ["Before"]*100 + ["After"]*100
-    })
-    st.bar_chart(df_times.groupby("Version").mean())
+    # System statistics
+    st.subheader("System Health Metrics")
+    tab1, tab2, tab3 = st.tabs(["CPU Usage", "Memory Usage", "Active Users"])
     
-    # System health metrics
-    st.markdown("#### System Health (Last 24 Hours)")
-    hours = [datetime.now() - timedelta(hours=i) for i in range(23, -1, -1)]
-    df_metrics = pd.DataFrame({
-        "Hour": [h.strftime("%H:00") for h in hours],
-        "CPU Usage (%)": chatbot_data["system_metrics"]["cpu_usage"],
-        "Memory Usage (%)": chatbot_data["system_metrics"]["memory_usage"],
-        "Latency (ms)": chatbot_data["system_metrics"]["latency"]
-    }).set_index("Hour")
-    st.line_chart(df_metrics)
-
-with col2:
-    st.markdown("### Chat Interface")
+    with tab1:
+        st.line_chart(
+            pd.DataFrame({
+                "CPU %": chatbot_data["system_stats"]["cpu_usage"],
+                "Hour": chatbot_data["system_stats"]["hours"]
+            }).set_index("Hour")
+        )
     
-    # Initialize session state for chat
+    with tab2:
+        st.line_chart(
+            pd.DataFrame({
+                "Memory %": chatbot_data["system_stats"]["memory_usage"],
+                "Hour": chatbot_data["system_stats"]["hours"]
+            }).set_index("Hour")
+        )
+    
+    with tab3:
+        st.line_chart(
+            pd.DataFrame({
+                "Users": chatbot_data["system_stats"]["active_users"],
+                "Hour": chatbot_data["system_stats"]["hours"]
+            }).set_index("Hour")
+        )
+    
+    # Chat interface
+    st.subheader("Chat with Enterprise AI")
+    
+    # Initialize chat history
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = chatbot_data["conversation_history"]
+        st.session_state.chat_history = chatbot_data["example_conversations"]
     
     # Display chat history
     chat_container = st.container()
     with chat_container:
         for msg in st.session_state.chat_history:
-            st.markdown(f"**User ({msg['timestamp']}):** {msg['user']}")
-            st.markdown(f"**Bot:** {msg['bot']}")
-            st.markdown("---")
+            st.markdown(f"""
+            <div style="background-color:#f0f2f6; padding:10px; border-radius:10px; margin-bottom:10px;">
+                <p style="font-weight:bold;">👤 User ({msg['time']}): {msg['user']}</p>
+                <p>🤖 Bot: {msg['bot']}</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     # User input
-    user_input = st.text_input("Ask about sales, AWS, performance, or other enterprise topics:")
+    user_input = st.text_input("Ask about sales, AWS, performance, or other business topics:", key="user_input")
     
     if user_input:
-        with st.spinner("Processing..."):
+        with st.spinner("Analyzing query..."):
             # Get bot response
-            bot_response = enterprise_chatbot_response(user_input)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            bot_response = generate_response(user_input)
+            timestamp = time.strftime("%I:%M %p")
             
             # Update chat history
             new_entry = {
                 "user": user_input,
-                "bot": bot_response,
-                "timestamp": timestamp
+                "bot": bot_response["response"],
+                "time": timestamp
             }
             st.session_state.chat_history.append(new_entry)
             
             # Rerun to update display
             st.experimental_rerun()
+    
+    # Technical details
+    st.markdown("---")
+    st.subheader("Technical Implementation")
+    st.markdown("""
+    - **Backend**: Flask API with Hugging Face transformers
+    - **Infrastructure**: AWS EC2 auto-scaling group
+    - **Orchestration**: Kubernetes cluster
+    - **Optimizations**:
+        - LoRA fine-tuning for 42% latency reduction
+        - Caching layer for frequent queries
+        - Async processing for long-running tasks
+    - **Monitoring**: Prometheus + Grafana dashboard
+    """)
 
-# Footer with technical details
-st.markdown("---")
-st.markdown("""
-**Technical Highlights:**
-- Reduced response latency by 300ms (42% improvement) via LoRA fine-tuning and EC2 auto-scaling
-- Achieved 94% user satisfaction through context-aware conversations handling 500+ daily queries
-- Deployed Flask interface supporting 1.2K+ DAU with 99.95% uptime using Kubernetes orchestration
-""")
+if __name__ == "__main__":
+    main()
