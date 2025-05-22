@@ -2,9 +2,7 @@ import streamlit as st
 import time
 import random
 import pandas as pd
-import plotly.express as px
 from datetime import datetime, timedelta
-import json
 
 # Set page config
 st.set_page_config(
@@ -70,13 +68,10 @@ with col1:
     # Response time comparison
     st.markdown("#### Response Time Optimization")
     df_times = pd.DataFrame({
-        "Before": chatbot_data["response_times"],
-        "After": chatbot_data["response_times_optimized"]
+        "Time (ms)": chatbot_data["response_times"] + chatbot_data["response_times_optimized"],
+        "Version": ["Before"]*100 + ["After"]*100
     })
-    fig_times = px.box(df_times, y=["Before", "After"], 
-                      labels={"value": "Response Time (ms)"},
-                      title="Response Time Improvement (300ms reduction)")
-    st.plotly_chart(fig_times, use_container_width=True)
+    st.bar_chart(df_times.groupby("Version").mean())
     
     # System health metrics
     st.markdown("#### System Health (Last 24 Hours)")
@@ -86,8 +81,8 @@ with col1:
         "CPU Usage (%)": chatbot_data["system_metrics"]["cpu_usage"],
         "Memory Usage (%)": chatbot_data["system_metrics"]["memory_usage"],
         "Latency (ms)": chatbot_data["system_metrics"]["latency"]
-    })
-    st.line_chart(df_metrics.set_index("Hour"))
+    }).set_index("Hour")
+    st.line_chart(df_metrics)
 
 with col2:
     st.markdown("### Chat Interface")
@@ -123,11 +118,6 @@ with col2:
             
             # Rerun to update display
             st.experimental_rerun()
-
-# Architecture diagram
-st.markdown("### System Architecture")
-st.image("https://miro.medium.com/v2/resize:fit:1400/1*Q5eu4ZAhx7W7J0opPax6hw.png", 
-         caption="Chatbot Architecture with AWS EC2, Hugging Face, and Kubernetes")
 
 # Footer with technical details
 st.markdown("---")
